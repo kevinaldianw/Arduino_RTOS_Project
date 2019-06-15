@@ -1,24 +1,22 @@
-int32_t lastDigit = 0, temporarySpeed = 0;
-bool newDigit = false;
-
-bool menuActive = true, cekKeypadActive = false, stepperActive = false, dhtActive = false, useJoystick = false;
-
-
 
 void OLEDInit()
 {
   oled.begin(&Adafruit128x64, I2C_ADDRESS);
   oled.setFont(System5x7);
-  oled.setCursor(0,0);             // Start at top-left corner
+  oled.setCursor(0, 0);            // Start at top-left corner
   oled.println(F("BAGASKARA P P"));
+  oled.println("44215");
   oled.println(F("KEVIN ALDIAN W"));
+  oled.println("44239");
   oled.println(F("M HARITSAH M"));
-  delay(2000);
+  oled.println("44246");
+  delay(4000);
   oled.clear();
 }
 
-void displayOLED()
+void OLEDDisplay()
 {
+  key = keypad.getKey();
   if (menuActive)
   {
     if (key == 'A') //Atas
@@ -80,16 +78,14 @@ void displayOLED()
     if (key == 'C' && select == 2) //Masuk Menu 2 (Stepper + Joystick)
     {
       oled.clear();
-      useJoystick = true;
-      stepperActive = true;
+      stepperJoyActive = true;
       menuActive = false;
 
     }
     if (key == 'C' && select == 3) //Masuk Menu 3 (Stepper + Keypad)
     {
       oled.clear();
-      useJoystick = false;
-      stepperActive = true;
+      stepperKeyActive = true;
       menuActive = false;
 
     }
@@ -102,18 +98,17 @@ void displayOLED()
   }
   if (dhtActive)
   {
+    oled.setCursor(0, 0);
+    char text[20];
+    sprintf(text,"Suhu: %d C",(int) temperature);
+    oled.println(text);
+    sprintf(text1,"Kelembapan: %d %", (int) humidity);
     if (key == 'D') //Kembali ke menu
     {
       oled.clear();
       menuActive = true;
       dhtActive = false;
     }
-    oled.setCursor(0, 0);
-    oled.println(F("SENSOR DHT-11"));
-    oled.println("Suhu:");
-    oled.println(temperature,1);
-    oled.println("Kelembapan:");
-    oled.println(humidity,1);
   }
   if (cekKeypadActive)
   {
@@ -128,104 +123,97 @@ void displayOLED()
     }
   }
 
-  if (stepperActive)
+  if (stepperJoyActive)
   {
-    if (useJoystick)
+    oled.setCursor(0, 0);
+    oled.println(F("STEPPER + JOYSTICK"));
+    oled.println("Kecepatan :");
+    stepperSpeed = map(joystickYVal, 0, 1023, 0, 100);
+    char text[20];
+    sprintf(text, "  %d  ", stepperSpeed);
+    oled.println(text);
+    if (key == 'D') //Kembali ke menu
     {
-      oled.setCursor(0, 0);
-      oled.println(F("STEPPER + JOYSTICK"));
-      oled.println("Kecepatan :");
-      //      stepperSpeed = map(joystickYVal, 0, 1023, 0, 100);
-      //      char text[20];
-      //      sprintf(text,"%d",stepperSpeed);
-      //      oled.println(text);
-      if (key == 'D') //Kembali ke menu
-      {
-        oled.clear();
-        menuActive = true;
-        stepperActive = false;
-      }
+      oled.clear();
+      menuActive = true;
+      stepperJoyActive = false;
     }
-    else
+  }
+
+  if (stepperKeyActive)
+  {
+    oled.setCursor(0, 0);
+    oled.println("Masukkan kecepatan");
+    oled.println("(0-100)");
+    char text[20];
+    int a = temporarySpeed;
+    sprintf(text, "%d", a);
+    oled.println(text);
+    oled.println("___ ");
+
+    if (key == '0') {
+      temporarySpeed *= 10;
+      vTaskDelay(10);
+    }
+    else if (key == '1') {
+      temporarySpeed *= 10;
+      temporarySpeed += 1;
+      vTaskDelay(10);
+    }
+    else if (key == '2') {
+      temporarySpeed *= 10;
+      temporarySpeed += 2;
+      vTaskDelay(10);
+    }
+    else if (key == '3') {
+      temporarySpeed *= 10;
+      temporarySpeed += 3;
+      vTaskDelay(10);
+    }
+    else if (key == '4') {
+      temporarySpeed *= 10;
+      temporarySpeed += 4;
+      vTaskDelay(10);
+    }
+    else if (key == '5') {
+      temporarySpeed *= 10;
+      temporarySpeed += 5;
+      vTaskDelay(10);
+    }
+    else if (key == '6') {
+      temporarySpeed *= 10;
+      temporarySpeed += 6;
+      vTaskDelay(10);
+    }
+    else if (key == '7') {
+      temporarySpeed *= 10;
+      temporarySpeed += 7;
+      vTaskDelay(10);
+    }
+    else if (key == '8') {
+      temporarySpeed *= 10;
+      temporarySpeed += 8;
+      vTaskDelay(10);
+    }
+    else if (key == '9') {
+      temporarySpeed *= 10;
+      temporarySpeed += 9;
+      vTaskDelay(10);
+    }
+    else if (key == 'C')
     {
-      oled.setCursor(0, 0);
-      oled.println(F("STEPPER + KEYPAD"));
-      oled.println("Masukkan kecepatan");
-      oled.println("(0-100)");
+      oled.clear();
+      stepperSpeed = temporarySpeed;
+      temporarySpeed = 0;
+      vTaskDelay(10);
+    }
 
-      if (key == '0') {
-        lastDigit = 0;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '1') {
-        lastDigit = 1;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '2') {
-        lastDigit = 2;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '3') {
-        lastDigit = 3;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '4') {
-        lastDigit = 4;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '5') {
-        lastDigit = 5;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '6') {
-        lastDigit = 6;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '7') {
-        lastDigit = 7;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '8') {
-        lastDigit = 8;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == '9') {
-        lastDigit = 9;
-        newDigit = true;
-        vTaskDelay(10);
-      }
-      else if (key == 'C')
-      {
-        oled.clear();
-        stepperSpeed = temporarySpeed;
-        temporarySpeed = 0;
-      }
-
-      else if (key == 'D') //Kembali ke menu
-      {
-        oled.clear();
-        menuActive = true;
-        stepperSpeed = 0;
-        stepperActive = false;
-      }
-
-      if (newDigit)
-      {
-        temporarySpeed = temporarySpeed * 10 + lastDigit;
-        newDigit = false;
-        vTaskDelay(1);
-      }
-      Serial.println(temporarySpeed);
-      if (temporarySpeed > 0)oled.println(temporarySpeed);
+    if (key == 'D') //Kembali ke menu
+    {
+      oled.clear();
+      menuActive = true;
+      stepperSpeed = 0;
+      stepperKeyActive = false;
     }
   }
 }
