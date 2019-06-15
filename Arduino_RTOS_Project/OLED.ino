@@ -102,7 +102,9 @@ void OLEDDisplay()
     char text[20];
     sprintf(text,"Suhu: %d C",(int) temperature);
     oled.println(text);
+    char text1[20];
     sprintf(text1,"Kelembapan: %d %", (int) humidity);
+    oled.println();
     if (key == 'D') //Kembali ke menu
     {
       oled.clear();
